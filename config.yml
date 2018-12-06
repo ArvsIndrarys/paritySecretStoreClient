@@ -1,0 +1,4 @@
+secretstore_url: http://localhost
+secretstore_port: 8010
+client_url: http://localhost
+client_port: 8545
