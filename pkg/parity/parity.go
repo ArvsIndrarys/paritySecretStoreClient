@@ -33,12 +33,12 @@ type DecryptionKey struct {
 // GetShadowsString allows recovering the secret Shadows as a string
 func (k DecryptionKey) GetShadowsString() string {
 
+	l := len(k.Shadows)
 	var b strings.Builder
 	fmt.Fprintf(&b, "[")
-	for _, v := range k.Shadows {
-		fmt.Fprintf(&b, v)
+	for i := 0; i < l-1; i++ {
+		fmt.Fprintf(&b, "\"%s\",", k.Shadows[i])
 	}
-	fmt.Fprintf(&b, "[")
-
+	fmt.Fprintf(&b, "\"%s\"]", k.Shadows[l-1])
 	return b.String()
 }

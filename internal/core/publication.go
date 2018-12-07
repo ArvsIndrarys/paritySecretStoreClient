@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 
@@ -21,6 +22,7 @@ const (
 	version              = "2.0"
 	id                   = 1
 	treshold             = "2"
+	plainDoc             = "fiftyShadesOfFailure"
 )
 
 var (
@@ -75,8 +77,6 @@ func insertDataInSecretStore(docID string) error {
 		return fmt.Errorf("signRawHash: %s", e)
 	}
 
-	fmt.Println("DocID", docID, "\nsignedDocID", signedDocID)
-
 	serverKey, e := getServerKey(docID, signedDocID)
 	if e != nil {
 		return fmt.Errorf("getDecryptionKey: %s", e)
@@ -87,17 +87,16 @@ func insertDataInSecretStore(docID string) error {
 		return fmt.Errorf("generateDocKey: %s", e)
 	}
 
-	hexData, e := file.LoadFileAsHexString(docID)
-	if e != nil {
-		return fmt.Errorf("loadFileAsHexString: %s", e)
-	}
+	hexData := hex.EncodeToString([]byte(plainDoc))
+
+	fmt.Println("DataHex:", hexData)
 
 	encDoc, e := encryptDocument(aliceAddr, alicepwd, encKey.EncryptedKey, hexData)
 	if e != nil {
 		return fmt.Errorf("encryptDocument: %s", e)
 	}
 
-	e = file.WriteFile(encDoc, docID)
+	e = file.WriteEncryptedFile(encDoc, docID)
 	if e != nil {
 		return fmt.Errorf("writeFile: %s", e)
 	}
@@ -105,12 +104,6 @@ func insertDataInSecretStore(docID string) error {
 	e = publishKey(docID, signedDocID, encKey.CommonPoint, encKey.EncryptedPoint)
 	if e != nil {
 		return fmt.Errorf("storeDoc: %s", e)
-	}
-
-	result := file.StoreResult{DocumentID: docID, SignedDocumentID: signedDocID, EncryptedDocumentPath: docID}
-	e = file.ResultToFile(result, docID)
-	if e != nil {
-		return fmt.Errorf("resultToFile: %s", e)
 	}
 	return nil
 }

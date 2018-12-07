@@ -19,31 +19,25 @@ const (
 
 func DecryptViaStore(docID string) (string, error) {
 
-	data, e := file.LoadInsertionResult(docID)
-	if e != nil {
-		return "", fmt.Errorf("loadResult: %s", e)
-	}
-
-	signedDocID, e := signRawHash(bobAddr, bobpwd, data.DocumentID)
+	signedDocID, e := signRawHash(bobAddr, bobpwd, docID)
 	if e != nil {
 		return "", fmt.Errorf("signRawHash: %s", e)
 	}
 
-	decKeys, e := getDecryptionKeys(data.DocumentID, signedDocID)
+	decKeys, e := getDecryptionKeys(docID, signedDocID)
 	if e != nil {
 		return "", fmt.Errorf("getDecryptionKeys: %s", e)
 	}
 
-	encDoc, e := file.LoadFile(data.EncryptedDocumentPath)
+	fmt.Println("DOCID:", docID, "SIGNED", signedDocID)
+
+	fmt.Println("DECKEYS:", decKeys)
+
+	encDoc, e := file.LoadEncryptedFile(docID)
 
 	plainDoc, e := decryptDoc(bobAddr, bobpwd, decKeys, encDoc)
 	if e != nil {
 		return "", fmt.Errorf("decryptDoc: %s", e)
-	}
-
-	e = file.WriteFile(plainDoc, docID)
-	if e != nil {
-		return "", fmt.Errorf("writeFile: %s", e)
 	}
 
 	return plainDoc, nil
@@ -76,6 +70,7 @@ func decryptDoc(address, pwd string, decKey parity.DecryptionKey, encDoc string)
 
 	request.Params = params
 
+	fmt.Println("Doc content:", encDoc)
 	resp, e := net.ExecutePost(url.String(), request)
 	if e != nil {
 		return "", e
@@ -86,12 +81,17 @@ func decryptDoc(address, pwd string, decKey parity.DecryptionKey, encDoc string)
 	if e != nil {
 		return "", e
 	}
+
+	fmt.Println("RESULT:", qr.Result)
 	decryptedDocument := strings.Strip0x(qr.Result)
+
+	fmt.Println("Decrypted doc:", decryptedDocument)
 
 	plainBytes, e := hex.DecodeString(decryptedDocument)
 	if e != nil {
 		return "", e
 	}
 
+	fmt.Println(string(plainBytes))
 	return string(plainBytes), nil
 }
