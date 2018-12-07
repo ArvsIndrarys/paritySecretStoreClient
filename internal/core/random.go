@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"encoding/hex"
@@ -12,6 +12,7 @@ const (
 )
 
 func randDocID() string {
+
 	rand.Seed(time.Now().UnixNano())
 	b := make([]byte, docIDlength)
 	for i := range b {
@@ -19,12 +20,5 @@ func randDocID() string {
 	}
 
 	id := hex.EncodeToString(b)
-
-	//e := writeFile(string(b), inputFolder+id)
-	//if e != nil {
-	//	log.Println(e)
-	//	return ""
-	//}
-
 	return id
 }

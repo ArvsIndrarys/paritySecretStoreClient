@@ -1,13 +1,12 @@
-package main
+package config
 
 import (
 	"io/ioutil"
 
 	yaml "gopkg.in/yaml.v1"
-)
 
-const (
-	configFilePath = "./config.yml"
+	"github.com/ArvsIndrarys/paritySecretStoreClient/internal/core"
+	"github.com/ArvsIndrarys/paritySecretStoreClient/pkg/net"
 )
 
 var (
@@ -22,7 +21,7 @@ type Config struct {
 	ClientPort            string `yaml:"client_port"`
 }
 
-func initConnexion(path string) error {
+func InitConfig(path string) error {
 	f, e := ioutil.ReadFile(path)
 	if e != nil {
 		return e
@@ -33,10 +32,10 @@ func initConnexion(path string) error {
 		return e
 	}
 
-	baseSecretStoreURL = URL{BaseURL: config.SecretStoreServerURL,
+	core.BaseSecretStoreURL = net.URL{BaseURL: config.SecretStoreServerURL,
 		Port: config.SecretStoreServerPort}
 
-	baseSecretStoreMethodsURL = URL{BaseURL: config.ClientURL,
+	core.BaseSecretStoreMethodsURL = net.URL{BaseURL: config.ClientURL,
 		Port: config.ClientPort}
 	return nil
 }
