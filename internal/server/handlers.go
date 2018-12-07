@@ -9,6 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ErrorResponse is the result sent back in case of failure
+type ErrorResponse struct {
+	Err error `json:"error"`
+}
+
 // PublishResponse is the result of a publication request
 type PublishResponse struct {
 	DocumentID string `json:"documentId"`
@@ -30,7 +35,7 @@ func insertRandomDataHandler(c *gin.Context) {
 	docID, e := core.InsertRandomDataInSecretStore()
 	if e != nil {
 		log.Println("INSERTION FAILURE:", e)
-		c.JSON(http.StatusInternalServerError, e)
+		c.JSON(http.StatusInternalServerError, ErrorResponse{e})
 		return
 	}
 	log.Println("INSERTION SUCCESS ->", docID)
@@ -41,7 +46,8 @@ func insertRandomDataHandler(c *gin.Context) {
 func signRandomHashHandler(c *gin.Context) {
 	doc, e := core.SignRandomHash()
 	if e != nil {
-		c.JSON(http.StatusInternalServerError, e)
+		log.Println("SIGNRANDOMHASH FAILURE:", e)
+		c.JSON(http.StatusInternalServerError, ErrorResponse{e})
 		return
 	}
 	c.JSON(http.StatusOK, PublishResponse{doc})
@@ -50,7 +56,9 @@ func signRandomHashHandler(c *gin.Context) {
 func keygenHandler(c *gin.Context) {
 	k, e := core.GenRandomKey()
 	if e != nil {
-		c.JSON(http.StatusInternalServerError, e)
+		log.Println("KEYGEN FAILURE:", e)
+		c.JSON(http.StatusInternalServerError, ErrorResponse{e})
+		return
 	}
 	c.JSON(http.StatusOK, PublishResponse{k})
 }
@@ -58,7 +66,9 @@ func keygenHandler(c *gin.Context) {
 func serverDocKeygenHandler(c *gin.Context) {
 	k, e := core.ServerDocKeygen()
 	if e != nil {
-		c.JSON(http.StatusInternalServerError, e)
+		log.Println("DOCANDKEYGEN FAILURE:", e)
+		c.JSON(http.StatusInternalServerError, ErrorResponse{e})
+		return
 	}
 	c.JSON(http.StatusOK, PublishResponse{k})
 }
@@ -70,7 +80,7 @@ func decryptDataFromIDHandler(c *gin.Context) {
 	plainData, e := core.DecryptViaStore(req.DocumentID)
 	if e != nil {
 		log.Println("DECRYPTION FAILURE:", e)
-		c.JSON(http.StatusInternalServerError, e)
+		c.JSON(http.StatusInternalServerError, ErrorResponse{e})
 		return
 	}
 	log.Println("DECRYPTION SUCCESS ->", req.DocumentID)
