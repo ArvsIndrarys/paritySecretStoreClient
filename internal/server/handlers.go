@@ -1,8 +1,10 @@
-package main
+package server
 
 import (
 	"log"
 	"net/http"
+
+	"github.com/ArvsIndrarys/paritySecretStoreClient/internal/core"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,21 +25,9 @@ type DecryptResponse struct {
 	DecryptedData string `json:"plainData"`
 }
 
-func server() {
-
-	router := gin.Default()
-
-	router.GET("/insertRandomData", insertRandomDataHandler)
-	router.GET("/signRandomHash", signRandomHashHandler)
-	router.GET("/docAndKeygen", serverDocKeygenHandler)
-	router.GET("/keygen", keygenHandler)
-	router.POST("/decryptDataFromID", decryptDataFromIDHandler)
-	router.Run(port)
-}
-
 func insertRandomDataHandler(c *gin.Context) {
 
-	docID, e := insertRandomDataInSecretStore()
+	docID, e := core.InsertRandomDataInSecretStore()
 	if e != nil {
 		log.Println("INSERTION FAILURE:", e)
 		c.JSON(http.StatusInternalServerError, e)
@@ -49,7 +39,7 @@ func insertRandomDataHandler(c *gin.Context) {
 }
 
 func signRandomHashHandler(c *gin.Context) {
-	doc, e := signRandomHash()
+	doc, e := core.SignRandomHash()
 	if e != nil {
 		c.JSON(http.StatusInternalServerError, e)
 		return
@@ -58,7 +48,7 @@ func signRandomHashHandler(c *gin.Context) {
 }
 
 func keygenHandler(c *gin.Context) {
-	k, e := genRandomKey()
+	k, e := core.GenRandomKey()
 	if e != nil {
 		c.JSON(http.StatusInternalServerError, e)
 	}
@@ -66,7 +56,7 @@ func keygenHandler(c *gin.Context) {
 }
 
 func serverDocKeygenHandler(c *gin.Context) {
-	k, e := serverDocKeygen()
+	k, e := core.ServerDocKeygen()
 	if e != nil {
 		c.JSON(http.StatusInternalServerError, e)
 	}
@@ -77,7 +67,7 @@ func decryptDataFromIDHandler(c *gin.Context) {
 
 	var req DecryptRequestWithID
 	c.BindJSON(&req)
-	plainData, e := decryptViaStore(req.DocumentID)
+	plainData, e := core.DecryptViaStore(req.DocumentID)
 	if e != nil {
 		log.Println("DECRYPTION FAILURE:", e)
 		c.JSON(http.StatusInternalServerError, e)

@@ -1,4 +1,4 @@
-package main
+package strings
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 )
 
 // Strip0x removes if exists an 0x in front of a string
-func strip0x(s string) string {
+func Strip0x(s string) string {
 	if s[0:2] == "0x" {
 		return s[2:]
 	}
@@ -14,7 +14,7 @@ func strip0x(s string) string {
 }
 
 // Add0x adds if not exists an 0x in front of a string
-func add0x(s string) string {
+func Add0x(s string) string {
 	if s[0:2] != "0x" {
 		return "0x" + s
 	}
@@ -22,7 +22,7 @@ func add0x(s string) string {
 }
 
 // https://stackoverflow.com/questions/1760757/how-to-efficiently-concatenate-strings-in-go
-func buildString(s ...string) string {
+func BuildString(s ...string) string {
 
 	var b strings.Builder
 	for _, v := range s {

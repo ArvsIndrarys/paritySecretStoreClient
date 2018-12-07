@@ -1,4 +1,4 @@
-package main
+package net
 
 import (
 	"bytes"
@@ -8,7 +8,24 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/ArvsIndrarys/paritySecretStoreClient/pkg/parity"
 )
+
+// Query is a base Parity query
+type Query struct {
+	JSONRPCVersion string   `json:"jsonrpc"`
+	Method         string   `json:"method"`
+	Params         []string `json:"params"`
+	ID             int      `json:"id"`
+}
+
+// EncKeyQueryResult is a Parity response containing an encryption Key
+type EncKeyQueryResult struct {
+	JSONRPCVersion string               `json:"jsonrpc"`
+	Result         parity.EncryptionKey `json:"result"`
+	ID             int                  `json:"id"`
+}
 
 // QueryResult is a base Parity response
 type QueryResult struct {
@@ -25,7 +42,9 @@ type URL struct {
 }
 
 func (u URL) String() string {
-	return buildString(u.BaseURL, ":", u.Port, "/", u.Path)
+	var b strings.Builder
+	fmt.Fprintf(&b, "%s:%s/%s", u.BaseURL, u.Port, u.Path)
+	return b.String()
 }
 
 // ExecutePost sends a HTTP POST request with a JSON object, if obj is different from an empty string
@@ -92,7 +111,7 @@ func bodyToString(b io.ReadCloser) string {
 	return strings.Trim(buf.String(), "\"")
 }
 
-// resolves Shadow ([]String) problem
+// resolves Shadow ([]String) problem the dirty way
 func formatJSON(in []byte) []byte {
 	outStr := strings.Replace(string(in), "\\", "", -1)
 	outStr = strings.Replace(outStr, "\"[", "[", -1)
