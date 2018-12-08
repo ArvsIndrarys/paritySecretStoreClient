@@ -5,6 +5,28 @@ import (
 	"strings"
 )
 
+// Credentials authenticates a function caller
+type Credentials struct {
+	Address  string `json:"address"`
+	Password string `json:"pwd"`
+}
+
+// IsCorrect checks a Credentials correctness
+func (c Credentials) IsCorrect() bool {
+	return len(c.Address) == 42 && c.Address[0:2] == "0x" && c.Password != ""
+}
+
+// IDandSigned are the corresponding server Key ID and its signature by a user
+type IDandSigned struct {
+	DocID       string `json:"docId"`
+	SignedDocID string `json:"signedDocId"`
+}
+
+// IsCorrect checks a IDandSigned correctness
+func (i IDandSigned) IsCorrect() bool {
+	return i.DocID != "" && i.SignedDocID != ""
+}
+
 // EncryptionKey contains the parameters returned by Parity Secret Sharing
 // to encrypt a secret
 type EncryptionKey struct {
