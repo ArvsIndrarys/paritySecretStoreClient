@@ -5,12 +5,13 @@ import (
 
 	yaml "gopkg.in/yaml.v1"
 
-	"github.com/ArvsIndrarys/paritySecretStoreClient/internal/core"
 	"github.com/ArvsIndrarys/paritySecretStoreClient/pkg/net"
 )
 
 var (
-	config Config
+	config             Config
+	BaseSecretStoreURL net.URL
+	BaseParityRPCURL   net.URL
 )
 
 // Config is the server connexion
@@ -32,10 +33,10 @@ func InitConfig(path string) error {
 		return e
 	}
 
-	core.BaseSecretStoreURL = net.URL{BaseURL: config.SecretStoreServerURL,
+	BaseSecretStoreURL = net.URL{BaseURL: config.SecretStoreServerURL,
 		Port: config.SecretStoreServerPort}
 
-	core.BaseSecretStoreMethodsURL = net.URL{BaseURL: config.ClientURL,
+	BaseParityRPCURL = net.URL{BaseURL: config.ClientURL,
 		Port: config.ClientPort}
 	return nil
 }
